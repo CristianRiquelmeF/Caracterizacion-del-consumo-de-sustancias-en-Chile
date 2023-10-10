@@ -1,0 +1,252 @@
+---
+title: "Trabajo módulo n°3 Data Science"
+author: "Cristian Riquelme Fernández"
+output: html_document
+---
+
+
+
+# Presentación del caso 
+
+EL presente trabajo toma a modo de ejercicio práctico, un caso extraído desde la plataforma online <https://www.kaggle.com>. 
+En la descripción de la problemática se expone lo siguiente:
+
+"Los datos están relacionados con campañas de marketing directo de una institución bancaria portuguesa. Sus clientes no estaban invirtiendo lo suficiente para depósitos a largo plazo y esto se estaba plasmando en la disminución de sus ingresos.Las campañas de marketing se basaron en llamadas telefónicas. A menudo, se requería más de un contacto con el mismo cliente, para poder acceder si el producto (depósito a plazo bancario) estaría suscrito ('sí') o no ('no') suscrito."
+
+Extraído desde <https://www.kaggle.com/datasets/rashmiranu/banking-dataset-classification?select=new_test.csv>
+
+La finalidad del presente análisis es determinar una caracterización de los clientes que suscribieron el depósito a largo plazo. 
+
+## Análisis exploratorio y preparación del contenido de base de datos ##
+
+```{r}
+dat=read.csv(file.choose(),sep=",",dec=".",header=T)
+
+library(agricolae)
+
+#Revizando la cantidad de variables
+
+names(dat)
+
+#Revizando tipo de variables
+
+str(dat)
+
+```
+
+Se Cambian tipos de variables "character" por "factor", para que los lea 
+de forma cualitativa nominal
+```{r}
+dat$marital = as.factor(dat$marital)
+dat$job = as.factor(dat$job)
+dat$marital = as.factor(dat$marital)
+dat$education = as.factor(dat$education)
+dat$default = as.factor(dat$default)
+dat$housing = as.factor(dat$housing)
+dat$loan = as.factor(dat$loan)
+dat$contact = as.factor(dat$contact)
+dat$month = as.factor(dat$month)
+dat$day_of_week = as.factor (dat$day_of_week)
+dat$poutcome = as.factor (dat$poutcome)
+dat$y = as.factor(dat$y)
+
+#Sumario a la data
+
+summary(dat)
+```
+
+
+## Análisis descriptivo general ##
+
+
+### **1.Edad** ###
+
+```{r}
+
+summary(dat$age)
+sd(dat$age, na.rm = TRUE)
+boxplot(dat$age, col="brown1", main="Edad ")  
+abline(h= mean(dat$age), col="blue")
+
+```
+
+```{r}
+HistAge= hist(dat$age, main="Histograma Edad", col="red", xlab="", ylab="")
+tabla = table.freq(HistAge)
+tabla
+```
+
+Se observa que el 50% de los casos posee una edad entre los 32 hasta 47 años. La mediana es de 38 y la media de 40.1. La distribución posee asimetria positiva, los datos atípicos sobre el límite superior desplazan la media hacia los datos extremos.Al obervar la tabla de frecuencia se identifica que el rango que va de los 30 a 35 años posee mayor cantidad de clientes con 7289 casos.
+
+### **2.Estado civil** ###
+
+```{r}
+summary(dat$marital)
+table(dat$marital)/32950
+labels = c("Divorciado", "Casado", "Soltero", "Sin Informar")
+porcentajes = c(0.111*100, 0.605*100, 0.280*100, 0.001*100)
+tags =paste(labels, porcentajes, "%", sep = " ")
+pie(porcentajes, labels  =tags, main = "Porcentaje Estado Civil", radius = 1)
+
+```
+
+Se observa que la mayoria de la población considerada para el análisis esta casada al representar un 60,5% de los casos, los solteros son un 28%,  divorciados 11,1% y sin informar un 0,1%. 
+
+### **3.Nivel educacional** ###
+
+```{r}
+educ_barr= table(dat$education)
+educ_barr
+porce =prop.table(educ_barr)*100
+educ_bar =barplot(porce, las=2, main = "Nivel educacional", col= rainbow(9))
+text(educ_bar, c(8), round(porce,2))
+```
+
+Se observa que la mayoría de la población considerada para el análisis posee estudios universitarios al representar un 29,5% de los casos, high school representan un 23,05%, enseñanza básica completa 14,65%
+
+### **4.Clientes con algún prestamo para vivienda** ###
+
+```{r}
+hous_bar= table(dat$housing)
+hous_bar
+
+porce =prop.table(hous_bar)*100
+hous_barr =barplot(porce, las=2, main = "Préstamo para vivienda", col= rainbow(9))
+text(hous_barr, c(8), round(porce,1))
+
+```
+
+Al consultar por si los clientes del banco poseen algún prestamo para vivienda, se observa que; 52,4% señala sí tener y un 45,2% señala no tener. 
+
+### **5.Clientes con algún préstamo personal**###
+
+```{r}
+loan_bar= table(dat$loan)
+loan_bar
+
+porce =prop.table(loan_bar)*100
+loan_barr =barplot(porce, las=2, main = "Préstamo personal", col= rainbow(9))
+text(loan_barr, c(8), round(porce,1))
+```
+
+Al consultar por si los clientes del banco poseen algún prestamo personal, se observa que; 82,3% señala no tener y un 15,2% señala sí tener. 
+
+
+### **6.Cantidad de contactos durante la campaña (con histograma para ver tabla de frecuencia)** ###
+
+```{r}
+summary(dat$campaign)
+Histcon= hist(dat$campaign, main="Histograma contactos", col="red", xlab="", ylab="")
+tabla = table.freq(Histcon)
+tabla
+```
+
+Se observa que el 50% de los clientes fueron contactados durante la campaña entre 1 a 3 veces. La mediana es de 2 contactos y la media de 2.56.
+
+### **7.Medio de contacto** ### 
+
+```{r}
+contact_pie= table(dat$contact)
+contact_pie
+table(dat$contact)/32950
+labels = c("Celular", "Teléfono")
+porcentajes = c(0.634*100, 0.365*100)
+tags =paste(labels, porcentajes, "%", sep = " ")
+pie(porcentajes, labels  =tags, main = "Medio de contacto", radius = 1)
+```
+
+Sobre el medio de contacto que se utilizó para realizar la campaña, un 63,4% fue contactado por celular y un 36,5% a través de teléfono fijo. 
+
+### **8.Mes del último contacto** ###
+
+```{r}
+summary(dat$month)
+```
+
+### **9.Día del último contacto** ###
+
+```{r}
+summary(dat$day_of_week)
+```
+
+
+### **10.Duración de la llamada en segundos (con histograma para ver tabla de frecuencia)** ###
+
+```{r}
+summary(dat$duration)
+Histdurt= hist(dat$duration, main="Histograma duración", col="red", xlab="", ylab="")
+tabla = table.freq(Histdurt)
+tabla
+```
+
+Se observa que el 50% de las llamadas registró una duración entre los 103 hasta 319 segundos (entre 1,7 a 5,3 minutos de duración). Al observar la tabla de frecuencia se obtiene que al menos 5 llamadas duraron más de una hora(4000 segundos), y hubo una gran cantidad de personas que no contestaron (0 segundos) o tuvieron una llamada de corta duración.
+
+### **11.Resultado de la campaña de marketing anterior** ###
+
+```{r}
+summary(dat$poutcome)
+```
+
+### **12.¿El cliente ha suscrito un depósito a plazo? ('sí No')** ###
+
+
+```{r}
+dep_pla= table(dat$y)
+dep_pla
+porce =prop.table(dep_pla)*100
+dep_bar =barplot(porce, main = "Depósito a plazo", col=  "aquamarine2")
+text(dep_bar, c(5,5), round(porce,1))
+```
+
+Finalmente, del total de clientes contactados durante el periodo de campaña un 11,3% suscribió el producto de interés para el banco y un 88,7% lo rechazó.
+
+## Se generan bases de datos separadas para breve análisis estratificado por quienes suscribieron o no el depósito a plazo de la campaña 
+```{r}
+dat_depyes= dat[dat$y=="yes",]
+dat_depno= dat[dat$y=="no",]
+summary(dat_depyes)
+summary(dat_depno)
+```
+
+### **Edad por estrato** ###
+
+```{r}
+summary(dat_depyes$age)
+summary(dat_depno$age)
+```
+
+
+### **Estado civil por estrato** ###
+
+```{r}
+summary(dat_depyes$marital)
+summary(dat_depno$marital)
+```
+
+### **Nivel educacional por estrato** ###
+
+```{r}
+summary(dat_depyes$education)
+summary(dat_depno$education)
+```
+
+### **Tipo de trabajo por estrato** ###
+
+```{r}
+summary(dat_depyes$job)
+summary(dat_depno$job)
+```
+
+### **Duración de llamadas en segundos por estrato** ###
+
+```{r}
+summary(dat_depyes$duration)
+summary(dat_depno$duration)
+```
+
+### **Conclusiones** ###
+
+De la clientela del banco contactada durante el periodo de campaña que sí acepto el producto ofrecido, se pueden extraer ciertas características que ayudarían a enfocar las estratégias de marketing a futuro. 
+La media de la edad es de 41 años, la mayoría indica por estado civíl estar casado/a con 2020 casos, poseen estudios universitarios con 1345 casos, laboralmente pertenecen al sector administrativo con 1070. Respecto a las caracteristicas de la campaña, en cuanto a la duración de las llamadas, en este grupo hubo una media de 549 segundos (9,1 minutos) y un valor máximo de 419 segundos (1 hora con 9  minutos). 
+Esta información podría porporcionar de manera básica una caracterización del tipo de cliente esperado por el banco.
+
