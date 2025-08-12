@@ -1,3 +1,3 @@
-# Proyecto Diplomado  Ciencia de Datos - Cristian Riquelme F.
+# Proyecto Diplomado de Data Science 
 Se realizará un análisis exploratorio con la base de datos del “Décimo Cuarto Estudio Nacional de Drogas en Población General de Chile”, estudio que se llevó a cabo por el Servicio Nacional para la Prevención y Rehabilitación del Consumo de Drogas y Alcohol (SENDA), el cual se realizó entre los meses de noviembre de 2020 y junio de 2021 y que se encuentra disponible en su página web. Posteriormente, se aplicará un modelo de aprendizaje
 supervisado de clasificación para etiquetar una variable categórica dependiente creada, consumidores o no consumidores, que indicará qué características sociales y socioeconómicas influyen en estos hábitos.
